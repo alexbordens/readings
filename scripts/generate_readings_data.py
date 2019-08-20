@@ -17,5 +17,3 @@ if __name__ == '__main__':
 	# Combine titles and create daily readings frame
 	CY18_daily_readings = daily_readings(readings, min(CY18['date']), max(CY18['date']))
 
-	CY18_daily_readings.to_csv('../data/output/cy18_daily_readings.csv')
-
