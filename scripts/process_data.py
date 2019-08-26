@@ -11,7 +11,7 @@ def process_data(df):
 
 		frames.append(table)
 
-	new_df = pd.concat(frames).reset_index(drop = True).drop('pages', 1)
+	new_df = pd.concat(frames).reset_index(drop = True).drop(columns = ['pages', 'page'])
 
 	return new_df
 
