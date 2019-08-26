@@ -2,12 +2,13 @@ import pandas as pd
 
 def daily_readings(df, start_date, end_date):
     '''
+    Takes a dataframe and a start/end date
     '''
     # Create a dataframe of all days between start and end date
     date_frame = generate_daily_frame(start_date, end_date)
     
     # Aggregate by day
-    daily_count = readings_by_day(df).reset_index()
+    daily_count = readings_by_day(df)
     
     # Join daily count to the frame of all dates and fill in any missing values with 0
     daily_readings = date_frame.merge(daily_count, on = 'date', how = 'left')
@@ -27,7 +28,6 @@ def generate_daily_frame(start_date, end_date):
 	Takes a start date and end date
 	Returns a dataframe of all dates including and between the start and end date
 	'''
-
 	df = pd.DataFrame({'date': [start_date, end_date]})
 	dates = pd.date_range(min(df['date']), max(df['date']))
 	df = df.set_index('date').reindex(dates).rename_axis('date').reset_index()
@@ -35,11 +35,10 @@ def generate_daily_frame(start_date, end_date):
 	return df
 
 def readings_by_day(df):
-	'''
-	* Daily reading count
-	'''
-    a = []
-	return df.groupby('date').sum().drop('page', 1)
+    '''
+    Daily readings
+    '''
+    return df.groupby('date').sum().reset_index()
 
 
 def cumulative_readings_by_day(df):
