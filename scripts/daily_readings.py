@@ -38,6 +38,7 @@ def readings_by_day(df):
 	'''
 	* Daily reading count
 	'''
+    a = []
 	return df.groupby('date').sum().drop('page', 1)
 
 
