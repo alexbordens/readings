@@ -2,4 +2,3 @@ data/scripts/__pycache__
 data/output/*.csv
 *.DS_Store
 node_modules
-dist
