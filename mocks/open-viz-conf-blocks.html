@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        body { margin:0;position:fixed;top:0;right:0;bottom:0;left:0; }
+
+        .tick.goal { 
+            font-weight: bold; 
+        }
+        .area {
+            fill: steelblue;
+            opacity: .15;
+        }
+
+        .line {
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .rule-line {
+            stroke: white;
+        }
+
+        .line--daily-target {
+            stroke: black;
+            stroke-dasharray: 3;
+        }
+
+        .line--cumulative {
+            stroke: steelblue;
+            stroke-width: 2;
+        }
+
+        .circle--end-marker {
+            fill: steelblue;
+        }
+
+        .final-value {
+            font-family: 'Helevetica', sans-serif;
+            font-size: 20px;
+        }
+
+        .target-label { 
+            font-family: 'Helvetica', sans-serif; 
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+  <script>
+    const dateParse = d3.timeParse('%Y-%m-%d');
+    const thousandsFormat = d3.format(',');
+    
+    const margins = {top: 10, right: 85, bottom: 20, left: 20};
+    const height = 500;
+    const width = 960;
+    const innerHeight = height - margins.top - margins.bottom;
+    const innerWidth = width - margins.right - margins.left;
+
+    const goal = 30 * 365;
+
+    const xScale = d3.scaleTime()
+        .range([0, innerWidth]);
+
+    const yScale = d3.scaleLinear()
+        .range([innerHeight, 0]);
+
+    const area = d3.area()
+        .x(d => xScale(d.date))
+        .y0(innerHeight)
+        .y1(d => yScale(d.cumulative));
+
+    const cumulative = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.cumulative));
+
+    const dailyTarget = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d.cumulative_target));
+
+    const svg = d3.select('body').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    const inner = svg.append('g')
+        .attr('class', 'inner')
+        .attr('transform', `translate(${margins.left},${margins.top})`);
+
+    d3.csv('CY18-readings.csv', function(d) {
+        return {
+            cumulative: +d.cumulative,
+            cumulative_target: +d.cumulative_target,
+            date: dateParse(d.date),
+            page_count: +d.page_count
+        }
+
+    }).then((d) => renderGraph(d));
+
+    function renderGraph(data) {
+        xScale.domain(d3.extent(data, d => d.date));
+        yScale.domain([0, d3.max(data, d => d.cumulative)]).nice();
+
+        const yAxisLabels = yScale.ticks().slice(0,-2);
+
+        inner.call(addXAxis);
+        inner.call(addYAxis, yAxisLabels);
+        inner.call(addReadings, data);
+        inner.call(addDailyTarget, data);
+    }
+
+    function addXAxis(selection) {
+        const xAxis = inner.append('g')
+            .attr('class', 'axis x')
+            .attr('transform', `translate(0,${innerHeight})`)
+            .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b')));
+    }
+
+    function addYAxis(selection, yAxisLabels) {
+
+        yAxisLabels.push(goal)
+
+        const yAxis = selection.append('g')
+            .attr('class', 'axis y')
+            .attr('transform', `translate(${innerWidth},0)`)
+            .call(d3.axisRight(yScale)
+                .tickValues(yAxisLabels)
+                .tickFormat(d => d === goal ? `${thousandsFormat(d)} (goal)`: thousandsFormat(d)));
+
+        yAxis.selectAll('.tick').filter(d => d === goal).classed('goal', true)
+        yAxis.selectAll('.domain').remove();
+    }
+
+    function addReadings(selection, data) {
+        const actual = selection.append('g');
+        const lastReading = data[data.length - 1];
+
+        actual.append('path')
+            .attr('class', 'area')
+            .datum(data)
+            .attr('d', area);
+
+        actual.call(addRuleLines, data);
+
+        actual.append('path')
+            .datum(data)
+            .attr('class', 'line line--cumulative')
+            .attr('d', cumulative);
+
+        actual.append('circle')
+            .datum(lastReading)
+            .attr('class', 'circle circle--end-marker')
+            .attr('cx', d => xScale(d.date))
+            .attr('cy', d => yScale(d.cumulative))
+            .attr('r', 4);
+
+        actual.append('text')
+            .attr('class', 'final-value')
+            .attr('x', xScale(lastReading.date) + 5)
+            .attr('y', yScale(lastReading.cumulative) - 10)
+            .text(`${thousandsFormat(lastReading.cumulative)}`)
+    }
+
+    function addRuleLines(selection, data) {
+        selection.append('g')
+                .attr('class', 'rule-lines')
+            .selectAll('rule-line')
+                .data(data.filter(d => d.date.getDate() === 1))
+                .enter().append('line')
+                .attr('class', 'rule-line')
+                .attr('x1', d => xScale(d.date))
+                .attr('x2', d => xScale(d.date))
+                .attr('y1', yScale(0))
+                .attr('y2', d => yScale(d.cumulative));
+    }
+
+    function addDailyTarget(selection, data) {
+        const target = selection.append('g');
+
+        target.append('path')
+            .datum(data)
+            .attr('class', 'line line--daily-target')
+            .attr('d', dailyTarget);
+
+        target.append('text')
+            .attr('class', 'target-label')
+            .attr('transform', 'translate(315, 305) rotate(333.5)')
+            .text('30 pages per day');
+    }
+
+  </script>
+</body>
