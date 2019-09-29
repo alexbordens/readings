@@ -48,7 +48,11 @@ class DailyReadings extends Component {
                     <g className="inner" style={innerStyles}>
                         <Axis />
                         <Axis />
-                        <Area />
+                        <Area data={this.props.data}
+                              xKey="date"
+                              yKey="cumulative"
+                              scales={scales}
+                              innerHeight={this.state.innerHeight}/>
                         <Line data={this.props.data} 
                               xKey="date" 
                               yKey="cumulative" 
