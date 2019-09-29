@@ -35,7 +35,9 @@ class App extends Component{
         }
 
         return(
-            <DailyReadings dimensions={dailyReadingsDimensions} data={this.state.dailyReadingsData}/>
+            <DailyReadings
+                dimensions={dailyReadingsDimensions}
+                data={this.state.dailyReadingsData}/>
         )
     }
 }
