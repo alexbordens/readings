@@ -9,7 +9,7 @@ class App extends Component{
         super(props)
 
         this.state = {
-            dailyReadingsData: []
+            isDataLoaded: false
         }
     }
 
@@ -24,7 +24,10 @@ class App extends Component{
                 page_count: +d.page_count
             }
 
-        }).then((d) => this.setState({ dailyReadingsData: d}));
+        }).then((d) => this.setState({
+            isDataLoaded: true,
+            dailyReadingsData: d
+        }));
     }
 
     render(){
@@ -34,10 +37,19 @@ class App extends Component{
             margins: {top: 10, right: 85, bottom: 20, left: 20}
         }
 
+        let chart;
+
+        if(this.state.isDataLoaded) {
+            chart = <DailyReadings dimensions={dailyReadingsDimensions}
+                                   data={this.state.dailyReadingsData}/>
+        } else {
+            chart = <h1>Data loading</h1> // TODO: Create real loading component
+        }
+
         return(
-            <DailyReadings
-                dimensions={dailyReadingsDimensions}
-                data={this.state.dailyReadingsData}/>
+            <React.Fragment>
+                {chart}
+            </React.Fragment>
         )
     }
 }
