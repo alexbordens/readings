@@ -1,3 +1,45 @@
-h1 {
-    font-family: 'Helvetica', sans-serif;
+.tick.goal { 
+    font-weight: bold; 
+}
+
+.area {
+    fill: steelblue;
+    opacity: .15;
+}
+
+.line {
+    stroke-width: 1;
+    fill: none;
+
+    &--daily-target {
+        stroke: black;
+        stroke-dasharray: 3;
+    }
+
+    &--cumulative {
+        stroke: steelblue;
+        stroke-width: 2;
+    }
+}
+
+.rule-line {
+    stroke: white;
+}
+
+.circle--end-marker {
+    fill: steelblue;
+}
+
+.final-value {
+    font-family: 'Helevetica', sans-serif;
+    font-size: 20px;
+}
+
+.label {
+    font-family: 'Helvetica', sans-serif; 
+
+    &--target-label {
+        font-size: 10px;
+        font-weight: bold;
+    }
 }
