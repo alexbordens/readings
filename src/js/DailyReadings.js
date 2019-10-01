@@ -1,10 +1,15 @@
 import React, { Component } from "react";
 import * as d3 from 'd3';
 
-import Axis from './Axis';
+import XAxis from './XAxis';
+import YAxis from './YAxis';
+
 import Line from './Line';
 import Area from './Area';
+import VerticalRuleLines from './VerticalRuleLines';
 
+import Label from './Label';
+import FinalLabel from './FinalLabel';
 
 class DailyReadings extends Component {
     constructor(props) {
@@ -41,26 +46,52 @@ class DailyReadings extends Component {
         }
 
         const scales = this.setScales();
+        const thousandsFormat = d3.format(',');
+        const timeFormat = d3.timeFormat('%b');
+
+        const dateParse = d3.timeParse('%Y-%m-%d');
+
+        const finalValue = this.props.data[this.props.data.length - 1];
 
         return(
             <div className="chart-wrapper" >
                 <svg className="chart" style={svgStyles}>
                     <g className="inner" style={innerStyles}>
-                        <Axis />
-                        <Axis />
+                        <XAxis scale={scales.x} format={timeFormat} offsetTop={this.state.innerHeight}/>
+
+                        <YAxis scale={scales.y} format={thousandsFormat} offsetLeft={this.state.innerWidth}/>
+
                         <Area data={this.props.data}
                               xKey="date"
                               yKey="cumulative"
                               scales={scales}
                               innerHeight={this.state.innerHeight}/>
+
+                        <VerticalRuleLines data={this.props.data}
+                                           x={scales.x}
+                                           y={scales.y} />
+
                         <Line data={this.props.data} 
                               xKey="date" 
                               yKey="cumulative" 
-                              scales={scales}/>
+                              scales={scales}
+                              cssClass="cumulative"/>
+
                         <Line data={this.props.data}
                               xKey="date"
                               yKey="cumulative_target"
-                              scales={scales}/>
+                              scales={scales}
+                              cssClass="daily-target"/>
+
+                        <Label xPos={scales.x(dateParse("2018-7-01"))}
+                               yPos={scales.y(5000)}
+                               text="30 pages per day"
+                               cssClass="target-label"
+                               rotation="333.5"/>
+
+                        <FinalLabel xPos={scales.x(finalValue.date)}
+                                    yPos={scales.y(finalValue.cumulative)}
+                                    text={thousandsFormat(finalValue.cumulative)}/>
                     </g>
                 </svg>
             </div>
