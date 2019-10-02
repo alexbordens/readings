@@ -3,6 +3,7 @@ import json
 import os
 from process_data import process_data
 from daily_readings import daily_readings
+from readings_by_title import readings_by_title
 
 if __name__ == '__main__':
 	df = pd.read_csv('../source_data/daily-log.csv')
@@ -17,3 +18,5 @@ if __name__ == '__main__':
 	# Combine titles and create daily readings frame
 	CY18_daily_readings = daily_readings(readings, min(CY18['date']), max(CY18['date']))
 
+	# List of dictionaries containing daily readings by title
+	by_title = readings_by_title(readings)
