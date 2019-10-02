@@ -83,8 +83,8 @@ class DailyReadings extends Component {
                               scales={scales}
                               cssClass="daily-target"/>
 
-                        <Label xPos={scales.x(dateParse("2018-7-01"))}
-                               yPos={scales.y(5000)}
+                        <Label xPos={scales.x(dateParse("2018-5-15"))}
+                               yPos={scales.y(4250)}
                                text="30 pages per day"
                                cssClass="target-label"
                                rotation="333.5"/>
